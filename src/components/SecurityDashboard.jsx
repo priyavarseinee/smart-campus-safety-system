@@ -3,7 +3,7 @@ import {
   ShieldCheck, AlertTriangle, CheckCircle2, Clock, MapPin, Phone, 
   X, Filter, LogOut, ShieldAlert, Award, FileSpreadsheet, Play, Check, ChevronRight, User, PhoneCall, QrCode, Smartphone, AlertOctagon, Ban, Users, Search, ArrowRight
 } from 'lucide-react';
-import { getIncidents, updateIncidentStatus, getSOSLogs, verifySOSIncident, getStoredStudents, saveStoredStudents } from '../services/firebaseConfig';
+import { getIncidents, updateIncidentStatus, getSOSLogs, verifySOSIncident, getStoredStudents, saveStoredStudents, syncCloudIncidents, syncCloudStudents } from '../services/firebaseConfig';
 import { CATEGORY_PROGRESS_UPDATES, INCIDENT_CATEGORIES } from '../services/mockData';
 import MobileQRModal from './MobileQRModal';
 
@@ -31,6 +31,12 @@ export default function SecurityDashboard({ user, onLogout }) {
     setIncidents(getIncidents());
     setSosLogs(getSOSLogs());
     setStudents(getStoredStudents());
+    syncCloudIncidents().then(() => {
+      setIncidents(getIncidents());
+    });
+    syncCloudStudents().then(() => {
+      setStudents(getStoredStudents());
+    });
   };
 
   const handleAdvanceStep = (incident, targetStepIndex) => {

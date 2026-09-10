@@ -5,7 +5,7 @@ import {
   Shield, RefreshCw, Key, Lock, Check, HelpCircle, Users, Radio, Square, Phone, Zap, Mic, Volume2, HeartPulse, User, QrCode, Smartphone, Ban, ArrowRight
 } from 'lucide-react';
 import { CHRIST_KENGERI_BLOCKS, INCIDENT_CATEGORIES, CATEGORY_PROGRESS_UPDATES } from '../services/mockData';
-import { getIncidents, createIncident, submitIncidentFeedback, updateStudentPassword, getCurrentSessionUser } from '../services/firebaseConfig';
+import { getIncidents, createIncident, submitIncidentFeedback, updateStudentPassword, getCurrentSessionUser, syncCloudIncidents, syncCloudStudents } from '../services/firebaseConfig';
 import MobileQRModal from './MobileQRModal';
 
 export default function StudentDashboard({ user, onLogout }) {
@@ -67,8 +67,11 @@ export default function StudentDashboard({ user, onLogout }) {
   useEffect(() => {
     loadStudentIncidents();
     checkUserStatus();
+    syncCloudIncidents().then(() => loadStudentIncidents());
+    syncCloudStudents();
     const interval = setInterval(() => {
-      loadStudentIncidents();
+      syncCloudIncidents().then(() => loadStudentIncidents());
+      syncCloudStudents();
       checkUserStatus();
     }, 1500); // 1.5s Rapid Sync
     return () => clearInterval(interval);

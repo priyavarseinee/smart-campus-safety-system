@@ -60,6 +60,71 @@ const initializeStorage = () => {
 
 initializeStorage();
 
+// --- CLOUD REALTIME DB SYNC HELPER ---
+const getCloudApiUrl = (path) => {
+  const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname.includes('192.168.'));
+  return isLocal ? `http://${window.location.hostname}:3001${path}` : path;
+};
+
+export const syncCloudIncidents = async () => {
+  try {
+    const res = await fetch(getCloudApiUrl('/api/incidents'));
+    const data = await res.json();
+    if (data && data.incidents && Array.isArray(data.incidents)) {
+      const local = getIncidents();
+      const map = new Map();
+      [...data.incidents, ...local].forEach(item => {
+        if (!map.has(item.id)) map.set(item.id, item);
+      });
+      const merged = Array.from(map.values());
+      localStorage.setItem(LOCAL_INCIDENTS_KEY, JSON.stringify(merged));
+      return merged;
+    }
+  } catch (e) {}
+  return getIncidents();
+};
+
+export const pushCloudIncidents = async (incidents) => {
+  try {
+    await fetch(getCloudApiUrl('/api/incidents'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ incidents })
+    });
+  } catch (e) {}
+};
+
+export const syncCloudStudents = async () => {
+  try {
+    const res = await fetch(getCloudApiUrl('/api/students'));
+    const data = await res.json();
+    if (data && data.students && Array.isArray(data.students)) {
+      const local = getStoredStudents();
+      const map = new Map();
+      [...data.students, ...local].forEach(s => {
+        const existing = map.get(s.regNo);
+        if (!existing || (s.passwordChanged && !existing.passwordChanged)) {
+          map.set(s.regNo, s);
+        }
+      });
+      const merged = Array.from(map.values());
+      localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(merged));
+      return merged;
+    }
+  } catch (e) {}
+  return getStoredStudents();
+};
+
+export const pushCloudStudents = async (students) => {
+  try {
+    await fetch(getCloudApiUrl('/api/students'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ students })
+    });
+  } catch (e) {}
+};
+
 export const getStoredStudents = () => {
   try {
     const data = localStorage.getItem(LOCAL_USERS_KEY);
@@ -71,6 +136,7 @@ export const getStoredStudents = () => {
 
 export const saveStoredStudents = (students) => {
   localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(students));
+  pushCloudStudents(students);
 };
 
 export const getStudentByRegNo = (regNo) => {
@@ -514,6 +580,7 @@ export const createIncident = (incidentData) => {
 
   const updated = [newIncident, ...incidents];
   localStorage.setItem(LOCAL_INCIDENTS_KEY, JSON.stringify(updated));
+  pushCloudIncidents(updated);
 
   // If incident is an SOS Quick Emergency or has high priority SOS tag, automatically create an SOS Log Entry!
   if (incidentData.categoryLabel === 'SOS QUICK EMERGENCY' || incidentData.type === 'medical' || incidentData.type === 'threat' || incidentData.isSOS) {
@@ -571,6 +638,7 @@ export const updateIncidentStatus = (incidentId, newStatus, extraData = {}) => {
     };
 
     localStorage.setItem(LOCAL_INCIDENTS_KEY, JSON.stringify(incidents));
+    pushCloudIncidents(incidents);
     return incidents[idx];
   }
   return null;

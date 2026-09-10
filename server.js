@@ -101,6 +101,47 @@ async function initTransporter(gmailUser = process.env.GMAIL_USER, gmailPass = p
 // Initialize on boot
 initTransporter();
 
+let serverCloudIncidents = [];
+let serverCloudStudents = null;
+
+app.get('/api/incidents', (req, res) => {
+  res.json({ success: true, incidents: serverCloudIncidents });
+});
+
+app.post('/api/incidents', (req, res) => {
+  const { incident, incidents } = req.body || {};
+  if (Array.isArray(incidents)) {
+    serverCloudIncidents = incidents;
+  } else if (incident) {
+    const idx = serverCloudIncidents.findIndex(i => i.id === incident.id);
+    if (idx >= 0) {
+      serverCloudIncidents[idx] = incident;
+    } else {
+      serverCloudIncidents.unshift(incident);
+    }
+  }
+  res.json({ success: true, incidents: serverCloudIncidents });
+});
+
+app.get('/api/students', (req, res) => {
+  res.json({ success: true, students: serverCloudStudents });
+});
+
+app.post('/api/students', (req, res) => {
+  const { student, students } = req.body || {};
+  if (Array.isArray(students)) {
+    serverCloudStudents = students;
+  } else if (student && serverCloudStudents) {
+    const idx = serverCloudStudents.findIndex(s => s.regNo.toLowerCase() === student.regNo.toLowerCase());
+    if (idx >= 0) {
+      serverCloudStudents[idx] = { ...serverCloudStudents[idx], ...student };
+    } else {
+      serverCloudStudents.push(student);
+    }
+  }
+  res.json({ success: true, students: serverCloudStudents });
+});
+
 app.get('/api/server-info', (req, res) => {
   const ips = getLocalIPs();
   const primaryIP = ips.find(ip => ip.startsWith('192.168.')) || ips[0] || 'localhost';
