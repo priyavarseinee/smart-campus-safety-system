@@ -129,8 +129,9 @@ export default function Login({ onLoginSuccess }) {
     const resetUrl = `${window.location.origin}?resetToken=${token}&regNo=${student.regNo}`;
 
     try {
-      const apiHost = window.location.hostname || 'localhost';
-      const response = await fetch(`http://${apiHost}:3001/api/send-reset-email`, {
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname.includes('192.168.');
+      const endpoint = isLocal ? `http://${window.location.hostname}:3001/api/send-reset-email` : '/api/send-reset-email';
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -473,59 +474,30 @@ export default function Login({ onLoginSuccess }) {
                 </div>
               </form>
             ) : (
-              /* OFFICIAL STUDENT INBOX CARD WITH WORKING CLICKABLE LINK & WEBMAIL LINK */
-              <div className="space-y-4 animate-fadeIn">
-                <div className="p-3 bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 rounded-xl text-xs font-bold flex items-center gap-2">
-                  <CheckCircle2 size={18} className="text-emerald-400 shrink-0" />
-                  Password reset link dispatched to {sentEmailData.recipient}!
+              /* REAL EMAIL DISPATCH CONFIRMATION SCREEN */
+              <div className="space-y-4 animate-fadeIn text-center py-4">
+                <div className="w-12 h-12 rounded-full bg-emerald-600/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center mx-auto shadow-lg">
+                  <CheckCircle2 size={26} />
                 </div>
+                
+                <h4 className="font-extrabold text-white text-base">Password Reset Email Sent!</h4>
+                
+                <p className="text-xs text-slate-300 leading-relaxed px-2">
+                  We have dispatched a live password reset email to:
+                  <br />
+                  <strong className="text-emerald-400 font-mono text-xs">{sentEmailData.recipient}</strong>
+                </p>
 
-                {sentEmailData.previewUrl && (
-                  <a
-                    href={sentEmailData.previewUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-md flex items-center justify-center gap-2 text-xs uppercase tracking-wider transition border border-blue-400/40"
-                  >
-                    <ExternalLink size={14} /> 🌐 Open Dispatched Email in Webmail Inbox (1-Click)
-                  </a>
-                )}
+                <p className="text-[11px] text-purple-300/80 bg-purple-950/40 p-3 rounded-xl border border-purple-500/20">
+                  📩 Please open your <strong>Gmail Inbox</strong> (or check Spam folder) and click the password reset link inside to change your password.
+                </p>
 
-                {/* Simulated Student Email Mailbox Interface */}
-                <div className="p-4 bg-[#070814] border-2 border-purple-500/40 rounded-2xl space-y-3 text-xs">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                    <span className="font-extrabold text-purple-300 flex items-center gap-1.5">
-                      <Mail size={14} /> Official Christ University Student Mailbox
-                    </span>
-                    <span className="text-[10px] font-mono text-slate-400">{sentEmailData.sentAt}</span>
-                  </div>
-
-                  <div className="space-y-1 text-slate-300">
-                    <p><strong className="text-slate-400">From:</strong> <span className="font-mono text-purple-300">no-reply.security@btech.christuniversity.in</span></p>
-                    <p><strong className="text-slate-400">To:</strong> <span className="font-mono text-emerald-400">{sentEmailData.recipient}</span></p>
-                    <p><strong className="text-slate-400">Subject:</strong> <strong className="text-white">🔐 Security Password Reset Request for {sentEmailData.student.name} ({sentEmailData.student.regNo})</strong></p>
-                  </div>
-
-                  <div className="p-3 bg-[#0e1126] rounded-xl border border-purple-500/30 space-y-3 text-[11px] leading-relaxed text-slate-200">
-                    <p>Dear <strong>{sentEmailData.student.name}</strong>,</p>
-                    <p>You requested to reset your password for the Christ University Kengeri Safety Portal. Click the button below to change and confirm your password:</p>
-                    
-                    <button
-                      type="button"
-                      onClick={() => setActiveResetStudent(sentEmailData.student)}
-                      className="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black rounded-xl shadow-lg flex items-center justify-center gap-2 text-xs uppercase tracking-wider transition border border-purple-400/40"
-                    >
-                      <ExternalLink size={15} /> 🔗 CLICK HERE TO CHANGE PASSWORD & CONFIRM ➔
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex justify-end pt-1">
+                <div className="pt-2">
                   <button
                     onClick={() => { setShowForgotModal(false); setSentEmailData(null); }}
-                    className="px-4 py-2 bg-slate-800 text-slate-300 hover:text-white rounded-xl text-xs font-bold"
+                    className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-xs shadow-lg uppercase tracking-wider transition"
                   >
-                    Close Mailbox Preview
+                    Done / Return to Login
                   </button>
                 </div>
               </div>
