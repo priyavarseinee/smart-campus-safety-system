@@ -6,7 +6,6 @@ import {
 } from 'lucide-react';
 import { CHRIST_KENGERI_BLOCKS, INCIDENT_CATEGORIES, CATEGORY_PROGRESS_UPDATES } from '../services/mockData';
 import { getIncidents, createIncident, submitIncidentFeedback, updateStudentPassword, getCurrentSessionUser, syncCloudIncidents, syncCloudStudents } from '../services/firebaseConfig';
-import MobileQRModal from './MobileQRModal';
 
 export default function StudentDashboard({ user, onLogout }) {
   const [incidents, setIncidents] = useState([]);
@@ -14,7 +13,6 @@ export default function StudentDashboard({ user, onLogout }) {
   const [selectedIncident, setSelectedIncident] = useState(null);
   const [showFeedbackModal, setShowFeedbackModal] = useState(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [showQRModal, setShowQRModal] = useState(false);
   const [liveUser, setLiveUser] = useState(user);
 
   // Track First Login Banner state locally
@@ -561,13 +559,6 @@ export default function StudentDashboard({ user, onLogout }) {
             </div>
 
             <button
-              onClick={() => setShowQRModal(true)}
-              className="px-3 py-1.5 bg-purple-950 hover:bg-purple-900 text-purple-300 border border-purple-500/40 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition"
-            >
-              <QrCode size={14} /> 📱 Mobile QR
-            </button>
-
-            <button
               onClick={() => setShowChangePasswordModal(true)}
               className="px-3 py-1.5 bg-purple-950 hover:bg-purple-900 text-purple-300 border border-purple-500/40 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition"
             >
@@ -868,12 +859,6 @@ export default function StudentDashboard({ user, onLogout }) {
           </div>
         </div>
       </main>
-
-      {/* --- MOBILE QR CODE MODAL --- */}
-      <MobileQRModal
-        isOpen={showQRModal}
-        onClose={() => setShowQRModal(false)}
-      />
 
       {/* --- QUICK SOS EMERGENCY ESSENTIAL FEATURES & CONFIRMATION CALL DIALOG WITH CROSS TO EXIT --- */}
       {sosActiveModal && (

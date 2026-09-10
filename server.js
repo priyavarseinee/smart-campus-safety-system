@@ -4,7 +4,6 @@ import nodemailer from 'nodemailer';
 import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import localtunnel from 'localtunnel';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,23 +14,6 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'dist')));
 
 const PORT = 3001;
-let activeTunnelUrl = null;
-
-async function startTunnel() {
-  try {
-    const tunnel = await localtunnel({ port: 3000, local_host: '127.0.0.1' });
-    activeTunnelUrl = tunnel.url;
-    console.log(`🌐 Public Mobile QR Access Tunnel active at: ${activeTunnelUrl}`);
-    tunnel.on('close', () => {
-      console.log('Tunnel closed, retrying...');
-      activeTunnelUrl = null;
-      setTimeout(startTunnel, 5000);
-    });
-  } catch (err) {
-    console.error('Localtunnel startup error:', err.message);
-  }
-}
-startTunnel();
 
 function getLocalIPs() {
   const interfaces = os.networkInterfaces();
@@ -149,9 +131,8 @@ app.get('/api/server-info', (req, res) => {
     status: 'ONLINE',
     configType: activeConfigType,
     localIPs: ips,
-    tunnelUrl: activeTunnelUrl,
     httpPort: 3000,
-    primaryUrl: activeTunnelUrl || `http://${primaryIP}:3000`
+    primaryUrl: `http://${primaryIP}:3000`
   });
 });
 

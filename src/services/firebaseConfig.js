@@ -213,8 +213,18 @@ export const updateStudentPassword = (regNo, newPassword) => {
 export const resetStudentPassword = (identifier, newPassword) => {
   const cleanId = (identifier || '').trim().toLowerCase();
   const students = getStoredStudents();
-  const student = students.find(s => s.regNo.toLowerCase() === cleanId || s.name.toLowerCase() === cleanId || (s.email && s.email.toLowerCase() === cleanId));
+  let student = students.find(s => s.regNo.toLowerCase() === cleanId || s.name.toLowerCase() === cleanId || (s.email && s.email.toLowerCase() === cleanId));
   
+  if (!student) {
+    const regRes = registerNewStudent({ regNo: identifier, name: identifier });
+    if (regRes.success) {
+      student = regRes.student;
+    } else {
+      const currentList = getStoredStudents();
+      student = currentList.find(s => s.regNo.toLowerCase() === cleanId);
+    }
+  }
+
   if (student) {
     if (student.accountStatus === 'DETAINED / ACCESS BLOCKED' || student.prankMarkCount >= 4) {
       return { success: false, isBlocked: true, message: 'ACCOUNT BLOCKED: You have been Detained for 1 Year due to reaching 4 Prank SOS Marks. Password reset is disabled.' };
@@ -222,7 +232,8 @@ export const resetStudentPassword = (identifier, newPassword) => {
 
     student.password = newPassword;
     student.passwordChanged = true;
-    saveStoredStudents(students);
+    student.isFirstLogin = false;
+    saveStoredStudents(getStoredStudents().map(s => s.regNo === student.regNo ? student : s));
     return { success: true, message: `Password for ${student.name} (${student.regNo}) reset successfully!` };
   }
   return { success: false, message: 'Student Register Number, Email, or Name not found in registry.' };

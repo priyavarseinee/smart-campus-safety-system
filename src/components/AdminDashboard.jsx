@@ -6,7 +6,6 @@ import {
 import { getIncidents, getStoredStudents, getSOSLogs } from '../services/firebaseConfig';
 import { INCIDENT_CATEGORIES } from '../services/mockData';
 import AddStudentModal from './AddStudentModal';
-import MobileQRModal from './MobileQRModal';
 
 export default function AdminDashboard({ user, onLogout }) {
   const [incidents, setIncidents] = useState([]);
@@ -16,7 +15,6 @@ export default function AdminDashboard({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('ANALYTICS'); // 'ANALYTICS', 'REGISTRY', 'AUDIT', 'SOS_LOGS', 'PENALTIES'
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [showQRModal, setShowQRModal] = useState(false);
   const [selectedWarningLog, setSelectedWarningLog] = useState(null);
 
   useEffect(() => {
@@ -105,13 +103,6 @@ export default function AdminDashboard({ user, onLogout }) {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowQRModal(true)}
-              className="px-3.5 py-2 bg-purple-950 hover:bg-purple-900 text-purple-300 border border-purple-500/40 rounded-xl text-xs font-bold shadow-md flex items-center gap-1.5 transition"
-            >
-              <QrCode size={16} /> 📱 Mobile QR
-            </button>
-
             <button
               onClick={() => setShowAddStudentModal(true)}
               className="px-3.5 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-1.5 transition"
@@ -697,12 +688,6 @@ export default function AdminDashboard({ user, onLogout }) {
           </div>
         )}
       </main>
-
-      {/* MOBILE QR MODAL */}
-      <MobileQRModal
-        isOpen={showQRModal}
-        onClose={() => setShowQRModal(false)}
-      />
 
       {/* WARNING LOG MODAL */}
       {selectedWarningLog && (

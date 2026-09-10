@@ -5,7 +5,6 @@ import {
 } from 'lucide-react';
 import { getIncidents, updateIncidentStatus, getSOSLogs, verifySOSIncident, getStoredStudents, saveStoredStudents, syncCloudIncidents, syncCloudStudents } from '../services/firebaseConfig';
 import { CATEGORY_PROGRESS_UPDATES, INCIDENT_CATEGORIES } from '../services/mockData';
-import MobileQRModal from './MobileQRModal';
 
 export default function SecurityDashboard({ user, onLogout }) {
   const [incidents, setIncidents] = useState([]);
@@ -16,7 +15,6 @@ export default function SecurityDashboard({ user, onLogout }) {
   const [sosFilter, setSosFilter] = useState('ALL'); // 'ALL', 'PENDING', 'GENUINE', 'PRANK'
   const [studentSearch, setStudentSearch] = useState('');
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [showQRModal, setShowQRModal] = useState(false);
   const [selectedStudentHistory, setSelectedStudentHistory] = useState(null);
   const [expandedEvidenceId, setExpandedEvidenceId] = useState(null);
   const [previewStepMap, setPreviewStepMap] = useState({});
@@ -152,15 +150,8 @@ export default function SecurityDashboard({ user, onLogout }) {
             </div>
           </div>
 
-          {/* Hotline Display & Mobile QR Button */}
+          {/* Hotline Display */}
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowQRModal(true)}
-              className="px-3 py-1.5 bg-blue-950 hover:bg-blue-900 text-blue-300 border border-blue-500/40 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition"
-            >
-              <QrCode size={14} /> 📱 Mobile QR
-            </button>
-
             <a
               href="tel:+918639527123"
               className="px-3.5 py-1.5 bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-500/40 rounded-full text-xs font-black flex items-center gap-1.5 shadow"
@@ -700,12 +691,6 @@ export default function SecurityDashboard({ user, onLogout }) {
           </div>
         )}
       </main>
-
-      {/* MOBILE QR MODAL */}
-      <MobileQRModal
-        isOpen={showQRModal}
-        onClose={() => setShowQRModal(false)}
-      />
 
       {/* WARNING HISTORY MODAL */}
       {selectedStudentHistory && (

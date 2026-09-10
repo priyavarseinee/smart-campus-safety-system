@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { 
   ShieldAlert, User, Lock, ArrowRight, ShieldCheck, Shield, KeyRound, CheckCircle2, 
-  AlertTriangle, X, QrCode, Smartphone, UserX, Ban, Mail, ExternalLink, Check, RefreshCw
+  AlertTriangle, X, Smartphone, UserX, Ban, Mail, ExternalLink, Check, RefreshCw
 } from 'lucide-react';
 import { authenticateUser, resetStudentPassword, getStudentByRegNo } from '../services/firebaseConfig';
-import MobileQRModal from './MobileQRModal';
 
 export default function Login({ onLoginSuccess }) {
   const [role, setRole] = useState('student'); // 'student', 'security', 'admin'
@@ -12,9 +11,6 @@ export default function Login({ onLoginSuccess }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [blockedAlert, setBlockedAlert] = useState(null);
-
-  // Mobile QR Modal State
-  const [showQRModal, setShowQRModal] = useState(false);
 
   // Forgot Password Email Reset Flow States
   const [showForgotModal, setShowForgotModal] = useState(false);
@@ -62,16 +58,19 @@ export default function Login({ onLoginSuccess }) {
   const [changePassError, setChangePassError] = useState('');
   const [changePassSuccess, setChangePassSuccess] = useState('');
 
-  // Check URL parameters on mount for resetToken
+  // Check URL parameters on mount for resetToken from Email Link
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const regNo = params.get('regNo');
     const token = params.get('resetToken');
     if (regNo && token) {
-      window.history.replaceState({}, document.title, window.location.pathname);
-      const student = getStudentByRegNo(regNo);
+      const student = getStudentByRegNo(regNo) || {
+        regNo: regNo,
+        name: `Student (${regNo})`,
+        email: `${regNo}@btech.christuniversity.in`
+      };
       if (student) {
-        if (student.accountStatus === 'DETAINED / ACCESS BLOCKED' || student.prankMarkCount >= 4) {
+        if (student.accountStatus === 'DETAINED / ACCESS BLOCKED' || (student.prankMarkCount && student.prankMarkCount >= 4)) {
           setBlockedAlert(`ACCOUNT BLOCKED: ${student.name} (${student.regNo}) is Detained for 1 Year. Password reset disabled.`);
         } else {
           setActiveResetStudent({ ...student, token });
@@ -209,16 +208,6 @@ export default function Login({ onLoginSuccess }) {
 
   return (
     <div className="min-h-screen bg-[#070814] flex flex-col items-center justify-center p-4 antialiased text-slate-100 relative">
-      {/* Top Mobile QR Quick Launcher */}
-      <div className="absolute top-4 right-4">
-        <button
-          onClick={() => setShowQRModal(true)}
-          className="px-3.5 py-2 bg-purple-950/80 hover:bg-purple-900 text-purple-300 border border-purple-500/40 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg transition"
-        >
-          <QrCode size={16} className="text-purple-400" /> 📱 Mobile QR Access
-        </button>
-      </div>
-
       {/* Brand Header */}
       <div className="text-center space-y-3 mb-8">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-950/80 border border-purple-800 text-purple-300 text-xs font-semibold tracking-wide">
@@ -359,24 +348,7 @@ export default function Login({ onLoginSuccess }) {
             Sign In to Campus Portal <ArrowRight size={16} />
           </button>
         </form>
-
-        {/* Scan QR Code to Open on Phone Button */}
-        <div className="pt-3 border-t border-slate-800 text-center">
-          <button
-            type="button"
-            onClick={() => setShowQRModal(true)}
-            className="w-full py-2.5 bg-purple-950/60 hover:bg-purple-900/80 text-purple-300 border border-purple-500/30 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition"
-          >
-            <Smartphone size={15} /> 📱 Scan QR Code to Open on Phone
-          </button>
-        </div>
       </div>
-
-      {/* Mobile QR Modal */}
-      <MobileQRModal
-        isOpen={showQRModal}
-        onClose={() => setShowQRModal(false)}
-      />
 
       {/* --- FORGOT PASSWORD EMAIL DISPATCH MODAL --- */}
       {showForgotModal && (
