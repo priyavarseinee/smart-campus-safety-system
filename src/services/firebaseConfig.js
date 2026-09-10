@@ -194,6 +194,7 @@ export const updateStudentPassword = (regNo, newPassword) => {
   if (idx !== -1) {
     students[idx].password = newPassword;
     students[idx].passwordChanged = true;
+    students[idx].isFirstLogin = false;
     saveStoredStudents(students);
     
     // Update active session user if currently logged in

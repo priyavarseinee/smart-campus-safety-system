@@ -68,6 +68,7 @@ export default function Login({ onLoginSuccess }) {
     const regNo = params.get('regNo');
     const token = params.get('resetToken');
     if (regNo && token) {
+      window.history.replaceState({}, document.title, window.location.pathname);
       const student = getStudentByRegNo(regNo);
       if (student) {
         if (student.accountStatus === 'DETAINED / ACCESS BLOCKED' || student.prankMarkCount >= 4) {
