@@ -300,18 +300,28 @@ export default function StudentDashboard({ user, onLogout }) {
 
   const handleGetLocation = () => {
     setGpsLoading(true);
+
+    const fallbackTimeout = setTimeout(() => {
+      setGps({ lat: 12.8631, lng: 77.4379 });
+      setGpsLoading(false);
+    }, 4000);
+
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
+          clearTimeout(fallbackTimeout);
           setGps({ lat: pos.coords.latitude, lng: pos.coords.longitude });
           setGpsLoading(false);
         },
         () => {
+          clearTimeout(fallbackTimeout);
           setGps({ lat: 12.8631, lng: 77.4379 });
           setGpsLoading(false);
-        }
+        },
+        { enableHighAccuracy: false, timeout: 3500, maximumAge: 60000 }
       );
     } else {
+      clearTimeout(fallbackTimeout);
       setGps({ lat: 12.8631, lng: 77.4379 });
       setGpsLoading(false);
     }
