@@ -401,60 +401,11 @@ export default function Login({ onLoginSuccess }) {
               </div>
             )}
 
-            {/* Expandable Live Gmail SMTP Config Panel */}
-            <div className="p-3 bg-purple-950/40 border border-purple-500/30 rounded-2xl space-y-2">
-              <button
-                type="button"
-                onClick={() => setShowGmailSetup(!showGmailSetup)}
-                className="w-full text-left text-xs font-bold text-purple-300 flex items-center justify-between"
-              >
-                <span className="flex items-center gap-1.5">
-                  <Mail size={14} className="text-purple-400" /> ⚙️ Connect Live Gmail SMTP (Optional Real Inbox Dispatch)
-                </span>
-                <span>{showGmailSetup ? '▲ Hide' : '▼ Setup'}</span>
-              </button>
-
-              {showGmailSetup && (
-                <div className="pt-2 border-t border-purple-500/20 space-y-2.5 animate-fadeIn">
-                  {gmailSetupMsg && (
-                    <div className={`p-2.5 rounded-xl text-xs font-semibold ${gmailSetupMsg.type === 'success' ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40' : 'bg-rose-950 text-rose-300 border border-rose-500/40'}`}>
-                      {gmailSetupMsg.text}
-                    </div>
-                  )}
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-300">Your Sender Gmail Address</label>
-                    <input
-                      type="email"
-                      placeholder="yourname@gmail.com"
-                      value={gmailUserConfig}
-                      onChange={(e) => setGmailUserConfig(e.target.value)}
-                      className="w-full px-3 py-2 bg-[#070814] border border-slate-700 rounded-lg text-xs text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-300">Google 16-Char App Password</label>
-                    <input
-                      type="password"
-                      placeholder="xxxx xxxx xxxx xxxx"
-                      value={gmailPassConfig}
-                      onChange={(e) => setGmailPassConfig(e.target.value)}
-                      className="w-full px-3 py-2 bg-[#070814] border border-slate-700 rounded-lg text-xs text-white"
-                    />
-                    <p className="text-[10px] text-slate-400 mt-0.5">
-                      Generate from: Google Account ➔ Security ➔ 2-Step Verification ➔ App passwords.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleSaveGmailConfig}
-                    disabled={savingGmail}
-                    className="w-full py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-bold shadow transition"
-                  >
-                    {savingGmail ? 'Connecting Gmail...' : 'Save & Connect Gmail SMTP'}
-                  </button>
-                </div>
-              )}
-            </div>
+            {resetError && (
+              <div className="p-3 bg-rose-950/80 border border-rose-500/40 text-rose-300 rounded-xl text-xs font-semibold flex items-center gap-2">
+                <AlertTriangle size={16} className="shrink-0" /> {resetError}
+              </div>
+            )}
 
             {!sentEmailData ? (
               <form onSubmit={handleSendResetEmail} className="space-y-4">
